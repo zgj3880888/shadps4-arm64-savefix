@@ -517,7 +517,7 @@ static Error Umount(const OrbisSaveDataMountPoint* mountPoint, bool call_backup 
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "Umount mountPoint:{}", mountPoint->data.to_view());
+    LOG_INFO(Lib_SaveData, "Umount mountPoint:{}", mountPoint->data.to_view());
 
     std::string mount_point_str = mountPoint->data.to_string();
 
@@ -574,7 +574,7 @@ Error PS4_SYSV_ABI sceSaveDataBackup(const OrbisSaveDataBackup* backup) {
     }
 
     const std::string_view dir_name{backup->dirName->data};
-    LOG_DEBUG(Lib_SaveData, "called dirName: {}", dir_name);
+    LOG_INFO(Lib_SaveData, "called dirName: {}", dir_name);
 
     std::string_view title{backup->titleId != nullptr ? std::string_view{backup->titleId->data}
                                                       : std::string_view{g_game_serial}};
@@ -623,7 +623,7 @@ Error PS4_SYSV_ABI sceSaveDataCheckBackupData(const OrbisSaveDataCheckBackupData
 
     const std::string_view title{check->titleId != nullptr ? std::string_view{check->titleId->data}
                                                            : std::string_view{g_game_serial}};
-    LOG_DEBUG(Lib_SaveData, "called with titleId={}", title);
+    LOG_INFO(Lib_SaveData, "called with titleId={}", title);
 
     const auto save_path =
         SaveInstance::MakeDirSavePath(check->userId, title, check->dirName->data);
@@ -702,7 +702,7 @@ Error PS4_SYSV_ABI sceSaveDataClearProgress() {
         LOG_INFO(Lib_SaveData, "called without initialize");
         return setNotInitializedError();
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     Backup::ClearProgress();
     return Error::OK;
 }
@@ -762,7 +762,7 @@ Error PS4_SYSV_ABI sceSaveDataDelete(const OrbisSaveDataDelete* del) {
         return Error::PARAMETER;
     }
     const std::string_view dirName{del->dirName->data};
-    LOG_DEBUG(Lib_SaveData, "called dirName: {}", dirName);
+    LOG_INFO(Lib_SaveData, "called dirName: {}", dirName);
     if (dirName.empty()) {
         return Error::PARAMETER;
     }
@@ -814,7 +814,7 @@ Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     const std::string_view title_id{cond->titleId == nullptr
                                         ? std::string_view{g_game_serial}
                                         : std::string_view{cond->titleId->data}};
@@ -993,7 +993,7 @@ Error PS4_SYSV_ABI sceSaveDataGetEventResult(const OrbisSaveDataEventParam*,
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_TRACE(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
 
     auto last_event = Backup::PopLastEvent();
     if (!last_event.has_value()) {
@@ -1029,7 +1029,7 @@ Error PS4_SYSV_ABI sceSaveDataGetMountInfo(const OrbisSaveDataMountPoint* mountP
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     const std::string_view mount_point_str{mountPoint->data};
     for (const auto& instance : g_mount_slots) {
         if (instance.has_value() && instance->GetMountPoint() == mount_point_str) {
@@ -1054,7 +1054,7 @@ Error PS4_SYSV_ABI sceSaveDataGetParam(const OrbisSaveDataMountPoint* mountPoint
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called: paramType = {}", magic_enum::enum_name(paramType));
+    LOG_INFO(Lib_SaveData, "called: paramType = {}", magic_enum::enum_name(paramType));
     const PSF* param_sfo = nullptr;
 
     const std::string_view mount_point_str{mountPoint->data};
@@ -1129,7 +1129,7 @@ Error PS4_SYSV_ABI sceSaveDataGetProgress(float* progress) {
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     *progress = Backup::GetProgress();
     return Error::OK;
 }
@@ -1142,7 +1142,7 @@ int PS4_SYSV_ABI sceSaveDataGetSaveDataCount() {
 Error PS4_SYSV_ABI
 sceSaveDataGetSaveDataMemory(const Libraries::UserService::OrbisUserServiceUserId userId, void* buf,
                              const size_t bufSize, const int64_t offset) {
-    LOG_DEBUG(Lib_SaveData, "Redirecting to sceSaveDataGetSaveDataMemory2");
+    LOG_INFO(Lib_SaveData, "Redirecting to sceSaveDataGetSaveDataMemory2");
     OrbisSaveDataMemoryData data{};
     data.buf = buf;
     data.bufSize = bufSize;
@@ -1173,7 +1173,7 @@ Error PS4_SYSV_ABI sceSaveDataGetSaveDataMemory2(OrbisSaveDataMemoryGet2* getPar
         LOG_INFO(Lib_SaveData, "called without save memory initialized");
         return Error::MEMORY_NOT_READY;
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     auto data = getParam->data;
     if (data != nullptr) {
         SaveMemory::ReadMemory(slot_id, data->buf, data->bufSize, data->offset);
@@ -1219,19 +1219,19 @@ int PS4_SYSV_ABI sceSaveDataGetUpdatedDataCount() {
 }
 
 Error PS4_SYSV_ABI sceSaveDataInitialize(void*) {
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     initialize();
     return Error::OK;
 }
 
 Error PS4_SYSV_ABI sceSaveDataInitialize2(void*) {
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     initialize();
     return Error::OK;
 }
 
 Error PS4_SYSV_ABI sceSaveDataInitialize3(void*) {
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     initialize();
     return Error::OK;
 }
@@ -1261,7 +1261,7 @@ Error PS4_SYSV_ABI sceSaveDataLoadIcon(const OrbisSaveDataMountPoint* mountPoint
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     fs::path path;
     const std::string_view mount_point_str{mountPoint->data};
     for (const auto& instance : g_mount_slots) {
@@ -1290,7 +1290,7 @@ Error PS4_SYSV_ABI sceSaveDataMount(const OrbisSaveDataMount* mount,
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called dirName: {}, mode: {:0b}, blocks: {}",
+    LOG_INFO(Lib_SaveData, "called dirName: {}, mode: {:0b}, blocks: {}",
               mount->dirName->data.to_view(), (int)mount->mountMode, mount->blocks);
 
     OrbisSaveDataMount2 mount_info{};
@@ -1311,7 +1311,7 @@ Error PS4_SYSV_ABI sceSaveDataMount2(const OrbisSaveDataMount2* mount,
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called dirName: {}, mode: {:0b}, blocks: {}",
+    LOG_INFO(Lib_SaveData, "called dirName: {}, mode: {:0b}, blocks: {}",
               mount->dirName->data.to_view(), (int)mount->mountMode, mount->blocks);
     return saveDataMount(mount, mount_result);
 }
@@ -1367,7 +1367,7 @@ Error PS4_SYSV_ABI sceSaveDataRestoreBackupData(const OrbisSaveDataRestoreBackup
     }
 
     const std::string_view dir_name{restore->dirName->data};
-    LOG_DEBUG(Lib_SaveData, "called dirName: {}", dir_name);
+    LOG_INFO(Lib_SaveData, "called dirName: {}", dir_name);
 
     std::string_view title{restore->titleId != nullptr ? std::string_view{restore->titleId->data}
                                                        : std::string_view{g_game_serial}};
@@ -1416,7 +1416,7 @@ Error PS4_SYSV_ABI sceSaveDataSaveIcon(const OrbisSaveDataMountPoint* mountPoint
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     fs::path path;
     const std::string_view mount_point_str{mountPoint->data};
     for (const auto& instance : g_mount_slots) {
@@ -1465,7 +1465,7 @@ Error PS4_SYSV_ABI sceSaveDataSetParam(const OrbisSaveDataMountPoint* mountPoint
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called: paramType = {}", magic_enum::enum_name(paramType));
+    LOG_INFO(Lib_SaveData, "called: paramType = {}", magic_enum::enum_name(paramType));
     PSF* param_sfo = nullptr;
     const std::string_view mount_point_str{mountPoint->data};
     for (auto& instance : g_mount_slots) {
@@ -1516,7 +1516,7 @@ int PS4_SYSV_ABI sceSaveDataSetSaveDataLibraryUser() {
 Error PS4_SYSV_ABI
 sceSaveDataSetSaveDataMemory(Libraries::UserService::OrbisUserServiceUserId userId, void* buf,
                              size_t bufSize, int64_t offset) {
-    LOG_DEBUG(Lib_SaveData, "Redirecting to sceSaveDataSetSaveDataMemory2");
+    LOG_INFO(Lib_SaveData, "Redirecting to sceSaveDataSetSaveDataMemory2");
     OrbisSaveDataMemoryData data{};
     data.buf = buf;
     data.bufSize = bufSize;
@@ -1551,7 +1551,7 @@ Error PS4_SYSV_ABI sceSaveDataSetSaveDataMemory2(const OrbisSaveDataMemorySet2* 
         return Error::MEMORY_NOT_READY;
     }
 
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     auto data = setParam->data;
     if (data != nullptr) {
         for (int i = 0; i < data_num; i++) {
@@ -1575,7 +1575,7 @@ Error PS4_SYSV_ABI sceSaveDataSetSaveDataMemory2(const OrbisSaveDataMemorySet2* 
 Error PS4_SYSV_ABI
 sceSaveDataSetupSaveDataMemory(Libraries::UserService::OrbisUserServiceUserId userId,
                                size_t memorySize, OrbisSaveDataParam* param) {
-    LOG_DEBUG(Lib_SaveData, "called: userId = {}, memorySize = {}", userId, memorySize);
+    LOG_INFO(Lib_SaveData, "called: userId = {}, memorySize = {}", userId, memorySize);
     OrbisSaveDataMemorySetup2 setupParam{};
     setupParam.userId = userId;
     setupParam.memorySize = memorySize;
@@ -1607,7 +1607,7 @@ Error PS4_SYSV_ABI sceSaveDataSetupSaveDataMemory2(const OrbisSaveDataMemorySetu
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
 
     u32 slot_id = 0;
     if (g_fw_ver > ElfInfo::FW_500) {
@@ -1690,7 +1690,7 @@ Error PS4_SYSV_ABI sceSaveDataSyncSaveDataMemory(OrbisSaveDataMemorySync* syncPa
         LOG_INFO(Lib_SaveData, "called without save memory initialized");
         return Error::MEMORY_NOT_READY;
     }
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
 
     SaveMemory::PersistMemory(slot_id);
     const auto& save_path = SaveMemory::GetSaveDir(slot_id);
@@ -1701,7 +1701,7 @@ Error PS4_SYSV_ABI sceSaveDataSyncSaveDataMemory(OrbisSaveDataMemorySync* syncPa
 }
 
 Error PS4_SYSV_ABI sceSaveDataTerminate() {
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     // Termination joins the backup worker; its callback cannot join its own thread.
     if (g_in_backup_callback) {
         return Error::BUSY;
@@ -1726,7 +1726,7 @@ Error PS4_SYSV_ABI sceSaveDataTerminate() {
 
 Error PS4_SYSV_ABI sceSaveDataTransferringMount(const OrbisSaveDataTransferringMount* mount,
                                                 OrbisSaveDataMountResult* mountResult) {
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     if (!g_initialized) {
         LOG_INFO(Lib_SaveData, "called without initialize");
         return setNotInitializedError();
@@ -1735,7 +1735,7 @@ Error PS4_SYSV_ABI sceSaveDataTransferringMount(const OrbisSaveDataTransferringM
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
         return Error::PARAMETER;
     }
-    LOG_DEBUG(Lib_SaveData, "called titleId: {}, dirName: {}", mount->titleId->data.to_view(),
+    LOG_INFO(Lib_SaveData, "called titleId: {}, dirName: {}", mount->titleId->data.to_view(),
               mount->dirName->data.to_view());
     OrbisSaveDataMount2 mount_info{};
     mount_info.userId = mount->userId;
@@ -1745,7 +1745,7 @@ Error PS4_SYSV_ABI sceSaveDataTransferringMount(const OrbisSaveDataTransferringM
 }
 
 Error PS4_SYSV_ABI sceSaveDataUmount(const OrbisSaveDataMountPoint* mountPoint) {
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     return Umount(mountPoint);
 }
 
@@ -1755,7 +1755,7 @@ int PS4_SYSV_ABI sceSaveDataUmountSys() {
 }
 
 Error PS4_SYSV_ABI sceSaveDataUmountWithBackup(const OrbisSaveDataMountPoint* mountPoint) {
-    LOG_DEBUG(Lib_SaveData, "called");
+    LOG_INFO(Lib_SaveData, "called");
     return Umount(mountPoint, true);
 }
 

@@ -507,6 +507,8 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<EmulatorSettingsImpl> emu_settings = std::make_shared<EmulatorSettingsImpl>();
     EmulatorSettingsImpl::SetInstance(emu_settings);
     emu_settings->Load();
+    // Apply the configured log filter now that settings are loaded.
+    Common::Log::UpdateLogLevels(EmulatorSettings.GetLogFilter());
 
     // Configure logger appropriately
     Common::Log::g_should_append |= EmulatorSettings.IsLogAppend();

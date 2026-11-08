@@ -1,10 +1,13 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <filesystem>
+
 #include <magic_enum/magic_enum.hpp>
 
 #include "common/elf_info.h"
 #include "common/logging/log.h"
+#include "common/path_util.h"
 #include "core/libraries/libs.h"
 #include "core/libraries/system/commondialog.h"
 #include "savedatadialog.h"
@@ -22,7 +25,7 @@ static SaveDialogResult g_result{};
 static SaveDialogUi g_save_dialog_ui;
 
 Error PS4_SYSV_ABI sceSaveDataDialogClose() {
-    LOG_DEBUG(Lib_SaveDataDialog, "called");
+    LOG_INFO(Lib_SaveDataDialog, "called");
     if (g_status != Status::RUNNING) {
         return Error::NOT_RUNNING;
     }
@@ -32,7 +35,7 @@ Error PS4_SYSV_ABI sceSaveDataDialogClose() {
 }
 
 Error PS4_SYSV_ABI sceSaveDataDialogGetResult(OrbisSaveDataDialogResult* result) {
-    LOG_DEBUG(Lib_SaveDataDialog, "called");
+    LOG_INFO(Lib_SaveDataDialog, "called");
     if (g_status != Status::FINISHED) {
         return Error::NOT_FINISHED;
     }
@@ -44,12 +47,12 @@ Error PS4_SYSV_ABI sceSaveDataDialogGetResult(OrbisSaveDataDialogResult* result)
 }
 
 Status PS4_SYSV_ABI sceSaveDataDialogGetStatus() {
-    LOG_TRACE(Lib_SaveDataDialog, "called status={}", magic_enum::enum_name(g_status));
+    LOG_INFO(Lib_SaveDataDialog, "called status={}", magic_enum::enum_name(g_status));
     return g_status;
 }
 
 Error PS4_SYSV_ABI sceSaveDataDialogInitialize() {
-    LOG_DEBUG(Lib_SaveDataDialog, "called");
+    LOG_INFO(Lib_SaveDataDialog, "called");
     if (!CommonDialog::g_isInitialized) {
         return Error::NOT_SYSTEM_INITIALIZED;
     }
@@ -75,22 +78,34 @@ Error PS4_SYSV_ABI sceSaveDataDialogOpen(const OrbisSaveDataDialogParam* param) 
         return Error::INVALID_STATE;
     }
     if (param == nullptr) {
-        LOG_DEBUG(Lib_SaveDataDialog, "called param:(NULL)");
+        LOG_INFO(Lib_SaveDataDialog, "called param:(NULL)");
         return Error::ARG_NULL;
     }
-    LOG_DEBUG(Lib_SaveDataDialog, "called param->mode: {}", magic_enum::enum_name(param->mode));
+    LOG_INFO(Lib_SaveDataDialog, "called param->mode: {}", magic_enum::enum_name(param->mode));
     ASSERT(param->size == sizeof(OrbisSaveDataDialogParam));
     ASSERT(param->baseParam.size == sizeof(CommonDialog::BaseParam));
     g_result = {};
     g_state = SaveDialogState{*param};
     g_status = Status::RUNNING;
     g_save_dialog_ui = SaveDialogUi(&g_state, &g_status, &g_result);
+    // Headless auto-confirm: when a marker file exists the dialog completes immediately
+    // instead of waiting for input that the Android frontend cannot deliver.
+    {
+        std::error_code ec;
+        const auto flag =
+            Common::FS::GetUserPath(Common::FS::PathType::UserDir) / "dialog_autoconfirm";
+        if (param->mode != SaveDataDialogMode::LIST && std::filesystem::exists(flag, ec)) {
+            LOG_INFO(Lib_SaveDataDialog, "autoconfirm: auto-finishing dialog mode {}",
+                     magic_enum::enum_name(param->mode));
+            g_save_dialog_ui.Finish(ButtonId::YES);
+        }
+    }
     return Error::OK;
 }
 
 Error PS4_SYSV_ABI sceSaveDataDialogProgressBarInc(OrbisSaveDataDialogProgressBarTarget target,
                                                    u32 delta) {
-    LOG_DEBUG(Lib_SaveDataDialog, "called");
+    LOG_INFO(Lib_SaveDataDialog, "called");
     if (g_status != Status::RUNNING) {
         return Error::NOT_RUNNING;
     }
@@ -106,7 +121,7 @@ Error PS4_SYSV_ABI sceSaveDataDialogProgressBarInc(OrbisSaveDataDialogProgressBa
 
 Error PS4_SYSV_ABI sceSaveDataDialogProgressBarSetValue(OrbisSaveDataDialogProgressBarTarget target,
                                                         u32 rate) {
-    LOG_DEBUG(Lib_SaveDataDialog, "called");
+    LOG_INFO(Lib_SaveDataDialog, "called");
     if (g_status != Status::RUNNING) {
         return Error::NOT_RUNNING;
     }
@@ -121,7 +136,7 @@ Error PS4_SYSV_ABI sceSaveDataDialogProgressBarSetValue(OrbisSaveDataDialogProgr
 }
 
 Error PS4_SYSV_ABI sceSaveDataDialogTerminate() {
-    LOG_DEBUG(Lib_SaveDataDialog, "called");
+    LOG_INFO(Lib_SaveDataDialog, "called");
     if (g_status == Status::RUNNING) {
         sceSaveDataDialogClose();
     }
@@ -135,7 +150,7 @@ Error PS4_SYSV_ABI sceSaveDataDialogTerminate() {
 }
 
 Status PS4_SYSV_ABI sceSaveDataDialogUpdateStatus() {
-    LOG_TRACE(Lib_SaveDataDialog, "called status={}", magic_enum::enum_name(g_status));
+    LOG_INFO(Lib_SaveDataDialog, "called status={}", magic_enum::enum_name(g_status));
     return g_status;
 }
 
