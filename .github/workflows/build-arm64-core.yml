@@ -3,6 +3,8 @@
 
 name: Build ARM64 Core
 
+# A push touching the guest libraries or the runtime rebuilds the core, so a single src/ change
+# is enough to get a fresh aarch64 binary out of CI.
 on:
   workflow_dispatch:
   push:
